@@ -1,96 +1,159 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Rewards Center</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- Telegram Mini App -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Monetag (event-based, safe) -->
-  <script src='//libtl.com/sdk.js' data-zone='10433810' data-sdk='show_10433810'></script>
+  <!-- Monetag SDK -->
+  <script src="//libtl.com/sdk.js"
+          data-zone="10433810"
+          data-sdk="show_10433810"></script>
+
   <style>
     body {
       margin: 0;
-      font-family: system-ui, -apple-system;
-      background: linear-gradient(135deg,#1f2933,#111827);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
       color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
     }
+
     .app {
       width: 92%;
       max-width: 420px;
-      background: #1f2933;
-      border-radius: 18px;
+      background: #020617;
+      border-radius: 20px;
       padding: 24px;
-      box-shadow: 0 30px 60px rgba(0,0,0,.5);
+      box-shadow: 0 30px 60px rgba(0,0,0,.6);
       text-align: center;
     }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    p {
+      color: #cbd5f5;
+      font-size: 14px;
+    }
+
     .cta {
-      background: #6366f1;
-      border: none;
-      padding: 14px;
+      margin-top: 22px;
       width: 100%;
-      border-radius: 12px;
-      color: #fff;
+      padding: 14px;
       font-size: 16px;
-      margin-top: 20px;
+      font-weight: 600;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      color: #fff;
       cursor: pointer;
     }
+
     .progress {
+      margin-top: 20px;
       height: 8px;
-      background: #374151;
+      background: #1e293b;
       border-radius: 10px;
       overflow: hidden;
-      margin-top: 20px;
       display: none;
     }
+
     .bar {
       height: 100%;
       width: 0%;
       background: #22c55e;
       transition: width .4s;
     }
+
+    .footer {
+      margin-top: 14px;
+      font-size: 11px;
+      color: #64748b;
+    }
   </style>
 </head>
 
 <body>
-<div class="app">
-  <h2>🎁 Rewards Access</h2>
-  <p>Tap verify to unlock access</p>
 
-  <button class="cta" onclick="verify()">Verify</button>
+<div class="app">
+  <h2>🎁 Rewards Verification</h2>
+  <p>Complete verification to unlock access</p>
+
+  <button class="cta" onclick="startRewarded()">Verify & Continue</button>
 
   <div class="progress" id="progress">
     <div class="bar" id="bar"></div>
   </div>
+
+  <div class="footer">Secure • Telegram Mini App</div>
 </div>
 
 <script>
   const tg = window.Telegram.WebApp;
   tg.expand();
 
-  function verify() {
-    document.getElementById("progress").style.display = "block";
-    let p = 0;
+  /**
+   * REWARDED INTERSTITIAL
+   * User-initiated → compliant
+   */
+  function startRewarded() {
+    show_10433810().then(() => {
+      runProgress();
+    }).catch(() => {
+      // fallback if ad fails
+      runProgress();
+    });
+  }
+
+  /**
+   * VISUAL VERIFICATION FLOW
+   */
+  function runProgress() {
+    const progress = document.getElementById("progress");
     const bar = document.getElementById("bar");
 
-    const interval = setInterval(() => {
-      p += 10;
-      bar.style.width = p + "%";
+    progress.style.display = "block";
+    let value = 0;
 
-      if (p >= 100) {
+    const interval = setInterval(() => {
+      value += 10;
+      bar.style.width = value + "%";
+
+      if (value >= 100) {
         clearInterval(interval);
 
-        // User-triggered session completion
+        // Send signal to bot (loop trigger)
         tg.sendData("verified");
         tg.close();
       }
     }, 300);
   }
+
+  /**
+   * OPTIONAL: IN-APP INTERSTITIAL
+   * Use only once per session
+   */
+  function showInAppAds() {
+    show_10433810({
+      type: 'inApp',
+      inAppSettings: {
+        frequency: 2,
+        capping: 0.1,
+        interval: 30,
+        timeout: 5,
+        everyPage: false
+      }
+    });
+  }
 </script>
+
 </body>
 </html>
