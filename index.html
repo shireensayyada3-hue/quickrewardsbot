@@ -1,16 +1,96 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Quick Rewards</title>
+  <meta charset="UTF-8">
+  <title>Rewards Center</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-</head>
-<body style="font-family: Arial; text-align:center; padding:20px;">
-  <h2>Welcome 🎁</h2>
-  <p>Tap below to continue</p>
 
-  <button onclick="alert('Loading rewards...')" style="padding:12px 20px;font-size:16px;">
-    Continue
-  </button>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Monetag (event-based, safe) -->
+  <script src='//libtl.com/sdk.js' data-zone='10433810' data-sdk='show_10433810'></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system;
+      background: linear-gradient(135deg,#1f2933,#111827);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .app {
+      width: 92%;
+      max-width: 420px;
+      background: #1f2933;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 30px 60px rgba(0,0,0,.5);
+      text-align: center;
+    }
+    .cta {
+      background: #6366f1;
+      border: none;
+      padding: 14px;
+      width: 100%;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    .progress {
+      height: 8px;
+      background: #374151;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 20px;
+      display: none;
+    }
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: #22c55e;
+      transition: width .4s;
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+  <h2>🎁 Rewards Access</h2>
+  <p>Tap verify to unlock access</p>
+
+  <button class="cta" onclick="verify()">Verify</button>
+
+  <div class="progress" id="progress">
+    <div class="bar" id="bar"></div>
+  </div>
+</div>
+
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.expand();
+
+  function verify() {
+    document.getElementById("progress").style.display = "block";
+    let p = 0;
+    const bar = document.getElementById("bar");
+
+    const interval = setInterval(() => {
+      p += 10;
+      bar.style.width = p + "%";
+
+      if (p >= 100) {
+        clearInterval(interval);
+
+        // User-triggered session completion
+        tg.sendData("verified");
+        tg.close();
+      }
+    }, 300);
+  }
+</script>
 </body>
 </html>
